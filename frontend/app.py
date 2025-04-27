@@ -4,13 +4,13 @@ import numpy as np
 import pandas as pd
 import faiss
 import os
+import urllib.request
 import sqlite3
 from sentence_transformers import SentenceTransformer
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
-
 
 # --- Always first Streamlit command ---
 st.set_page_config(
@@ -28,9 +28,27 @@ encoder = load_encoder()
 
 # --- Paths ---
 base_path = os.path.dirname(os.path.abspath(__file__))  # frontend/
-database_path = os.path.join(base_path, "..", "backend", "database", "skillmatch.db")
+backend_path = os.path.join(base_path, "..", "backend")
+database_path = os.path.join(backend_path, "database", "skillmatch.db")
 embeddings_path = os.path.join(base_path, "embeddings.npy")
 faiss_index_path = os.path.join(base_path, "faiss.index")
+
+# --- Ensure Backend Folder ---
+if not os.path.exists(backend_path):
+    os.makedirs(backend_path)
+
+# --- Google Drive File Links ---
+embeddings_url = 'https://drive.google.com/uc?id=1EPxqmQXd22QEA3shTkyDQTJgEcSWbx_1'
+faiss_index_url = 'https://drive.google.com/uc?id=1lfnshv_eCvviasRLX6bYwwWQgk06fq7y'
+
+# --- Download Files if Missing ---
+if not os.path.exists(embeddings_path):
+    with st.spinner('📥 Downloading embeddings...'):
+        urllib.request.urlretrieve(embeddings_url, embeddings_path)
+
+if not os.path.exists(faiss_index_path):
+    with st.spinner('📥 Downloading FAISS index...'):
+        urllib.request.urlretrieve(faiss_index_url, faiss_index_path)
 
 # --- Load Embeddings ---
 embeddings = np.load(embeddings_path)
