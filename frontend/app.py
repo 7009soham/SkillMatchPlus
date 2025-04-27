@@ -40,7 +40,7 @@ def load_embeddings_and_index():
     if not os.path.exists(faiss_index_path):
         gdown.download("https://drive.google.com/uc?id=1lfnshv_eCvviasRLX6bYwwWQgk06fq7y", faiss_index_path, quiet=False)
     
-    embeddings = np.load(embeddings_path)
+    embeddings = np.load(embeddings_path, allow_pickle=True)
     index = faiss.read_index(faiss_index_path)
     return embeddings, index
 
