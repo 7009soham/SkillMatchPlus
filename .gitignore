@@ -1,0 +1,59 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+env/
+ENV/
+
+# Streamlit cache
+.streamlit/
+
+# VSCode settings
+.vscode/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Pytest cache
+.pytest_cache/
+
+# Ignore large model/data files
+*.h5
+*.hdf5
+*.pkl
+*.joblib
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+
+# Ignore embeddings and FAISS index
+backend/embeddings.npy
+backend/faiss.index
+frontend/embeddings.npy
+frontend/faiss.index
+
+# Database if needed
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Ignore built files
+dist/
+build/
+*.egg-info/
+
+# Other
+skillmatch.db

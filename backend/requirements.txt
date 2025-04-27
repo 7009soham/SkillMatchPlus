@@ -1,0 +1,9 @@
+Flask
+flask-cors
+flask-pymongo
+pandas
+numpy
+scikit-learn
+matplotlib
+sentence-transformers
+joblib
