@@ -5,10 +5,9 @@ import pandas as pd
 import faiss
 import os
 import sqlite3
-import requests
+import gdown
 from sentence_transformers import SentenceTransformer
 import warnings
-
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -19,32 +18,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-# --- Helper: Download from Google Drive ---
-def download_file_from_google_drive(file_id, destination):
-    URL = "https://docs.google.com/uc?export=download"
-    session = requests.Session()
-    response = session.get(URL, params={'id': file_id}, stream=True)
-    token = get_confirm_token(response)
-
-    if token:
-        params = {'id': file_id, 'confirm': token}
-        response = session.get(URL, params=params, stream=True)
-
-    save_response_content(response, destination)
-
-def get_confirm_token(response):
-    for key, value in response.cookies.items():
-        if key.startswith('download_warning'):
-            return value
-    return None
-
-def save_response_content(response, destination):
-    CHUNK_SIZE = 32768
-    with open(destination, "wb") as f:
-        for chunk in response.iter_content(CHUNK_SIZE):
-            if chunk:
-                f.write(chunk)
 
 # --- Load Encoder with Cache ---
 @st.cache_resource()
@@ -59,22 +32,14 @@ database_path = os.path.join(base_path, "..", "backend", "database", "skillmatch
 embeddings_path = os.path.join(base_path, "embeddings.npy")
 faiss_index_path = os.path.join(base_path, "faiss.index")
 
-# --- Google Drive File IDs ---
-embeddings_file_id = '1EPxqmQXd22QEA3shTkyDQTJgEcSWbx_1'
-faiss_index_file_id = '1lfnshv_eCvviasRLX6bYwwWQgk06fq7y'
-
-# --- Download Files if Missing ---
-if not os.path.exists(embeddings_path):
-    with st.spinner('📥 Downloading embeddings.npy from Drive...'):
-        download_file_from_google_drive(embeddings_file_id, embeddings_path)
-
-if not os.path.exists(faiss_index_path):
-    with st.spinner('📥 Downloading faiss.index from Drive...'):
-        download_file_from_google_drive(faiss_index_file_id, faiss_index_path)
-
-# --- Load Embeddings ---
+# --- Download embeddings and index if missing ---
 @st.cache_resource()
 def load_embeddings_and_index():
+    if not os.path.exists(embeddings_path):
+        gdown.download("https://drive.google.com/uc?id=1EPxqmQXd22QEA3shTkyDQTJgEcSWbx_1", embeddings_path, quiet=False)
+    if not os.path.exists(faiss_index_path):
+        gdown.download("https://drive.google.com/uc?id=1lfnshv_eCvviasRLX6bYwwWQgk06fq7y", faiss_index_path, quiet=False)
+    
     embeddings = np.load(embeddings_path)
     index = faiss.read_index(faiss_index_path)
     return embeddings, index
@@ -82,12 +47,7 @@ def load_embeddings_and_index():
 embeddings, index = load_embeddings_and_index()
 
 # --- Connect to SQLite ---
-@st.cache_resource()
-def connect_db():
-    conn = sqlite3.connect(database_path, check_same_thread=False)
-    return conn
-
-conn = connect_db()
+conn = sqlite3.connect(database_path)
 cursor = conn.cursor()
 
 def load_users():
@@ -156,7 +116,7 @@ if st.button("✨ Find My Matches"):
         user_embedding = np.array([user_embedding]).astype('float32')
 
         # --- FAISS Search ---
-        distances, indices = index.search(user_embedding, top_n + 1)  # +1 because first might be closest to itself
+        distances, indices = index.search(user_embedding, top_n + 1)  # +1 because first might be itself
 
         st.markdown("---")
         st.subheader(f"🎉 Top {top_n} Recommended Friends")
