@@ -122,20 +122,21 @@ if st.button("✨ Find My Matches"):
         st.subheader(f"🎉 Top {top_n} Recommended Friends")
 
         # --- Show Recommendations ---
-        for idx in indices[0][1:]:  # Skip 0th index (new query user itself)
-            matched_user = dataset.iloc[idx]
-            with st.container():
-                st.markdown('<div class="profile-card">', unsafe_allow_html=True)
-                st.markdown(f"### 👤 {matched_user['Name']} from {matched_user.get('City', 'Unknown')}")
-                dob = matched_user.get('DOB', 'Not available')
-                st.write(f"**DOB:** {dob if pd.notnull(dob) else 'Not available'}")
-                st.write(f"**Interests:** 🌟 {matched_user['Profile_Text']}")
-                sim_score = round((1 - distances[0][np.where(indices[0] == idx)[0][0]]) * 100, 2)
-                st.write(f"**Semantic Similarity:** 🔥 {sim_score}%")
-                send_request_btn = st.button(f"🤝 Send Friend Request to {matched_user['Name']}", key=f"send_request_{idx}")
-                if send_request_btn:
-                    st.success(f"✅ Friend Request Sent to {matched_user['Name']}!")
-                st.markdown('</div>', unsafe_allow_html=True)
+        for idx in indices[0][1:]:  # Skip 0th index (query itself)
+            if idx < len(dataset):
+                matched_user = dataset.iloc[idx]
+                with st.container():
+                    st.markdown('<div class="profile-card">', unsafe_allow_html=True)
+                    st.markdown(f"### 👤 {matched_user['Name']} from {matched_user.get('City', 'Unknown')}")
+                    dob = matched_user.get('DOB', 'Not available')
+                    st.write(f"**DOB:** {dob if pd.notnull(dob) else 'Not available'}")
+                    st.write(f"**Interests:** 🌟 {matched_user['Profile_Text']}")
+                    sim_score = round((1 - distances[0][np.where(indices[0] == idx)[0][0]]) * 100, 2)
+                    st.write(f"**Semantic Similarity:** 🔥 {sim_score}%")
+                    send_request_btn = st.button(f"🤝 Send Friend Request to {matched_user['Name']}", key=f"send_request_{idx}")
+                    if send_request_btn:
+                        st.success(f"✅ Friend Request Sent to {matched_user['Name']}!")
+                    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- Footer ---
 st.markdown("---")
