@@ -90,11 +90,31 @@ st.markdown("""
             border-radius: 12px;
             width: 100%;
         }
+        .moving-text {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            box-sizing: border-box;
+            animation: marquee 15s linear infinite;
+            font-weight: bold;
+            color: #ff00c8;
+            background: #0f0f0f;
+            padding: 0.5rem;
+            font-size: 18px;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
     </style>
 """, unsafe_allow_html=True)
 
 # --- UI: Title ---
 st.markdown('<div class="big-title">🚀 SkillMatch+ | Connect Futuristically</div>', unsafe_allow_html=True)
+
+# --- Moving Advertisement ---
+st.markdown('<div class="moving-text">⚡ More Features Coming Soon! Get Ready for the Future of Connections. ⚡</div>', unsafe_allow_html=True)
+
 st.markdown("---")
 
 # --- UI: User Input ---
