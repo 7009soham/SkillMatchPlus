@@ -4,5 +4,5 @@ torch
 pandas
 numpy
 faiss-cpu
-
+sqlite3
 scikit-learn
