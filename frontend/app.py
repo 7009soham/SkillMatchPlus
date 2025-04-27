@@ -51,7 +51,7 @@ if not os.path.exists(faiss_index_path):
         urllib.request.urlretrieve(faiss_index_url, faiss_index_path)
 
 # --- Load Embeddings ---
-embeddings = np.load(embeddings_path)
+embeddings = np.load(embeddings_path, allow_pickle=True)
 index = faiss.read_index(faiss_index_path)
 
 # --- Connect to SQLite ---
