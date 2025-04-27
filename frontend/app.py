@@ -9,6 +9,7 @@ import gdown
 from datetime import datetime
 from sentence_transformers import SentenceTransformer
 import warnings
+
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -76,65 +77,69 @@ st.markdown("""
         }
         .profile-card {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1.8rem;
+            border: 1px solid rgba(0,255,255,0.2);
+            padding: 2rem;
             border-radius: 20px;
-            backdrop-filter: blur(10px);
-            margin-bottom: 1.5rem;
-            box-shadow: 0px 0px 15px 3px rgba(0,255,255,0.2);
-            transition: transform 0.5s ease;
+            margin: 1.5rem;
+            width: 300px;
+            display: inline-block;
+            vertical-align: top;
+            box-shadow: 0 0 10px rgba(0,255,255,0.5);
+            transition: transform 0.3s;
         }
         .profile-card:hover {
-            transform: scale(1.02);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,0,255,0.7);
         }
-        .send-btn {
-            background: linear-gradient(to right, #00ffe5, #ff00c8);
-            color: black;
-            font-weight: bold;
-            border-radius: 12px;
+        .featured {
+            border: 2px solid #ff00ff;
+            box-shadow: 0 0 30px #ff00ff;
+        }
+        .send-btn, .mutuals-btn {
+            margin-top: 10px;
             width: 100%;
+            background: linear-gradient(90deg, #00ffe5, #ff00c8);
+            color: black;
+            border: none;
+            border-radius: 10px;
+            padding: 0.5rem;
+            font-weight: bold;
         }
         .moving-text {
             width: 100%;
             overflow: hidden;
             white-space: nowrap;
             box-sizing: border-box;
-            animation: marquee 15s linear infinite;
+            animation: marquee 12s linear infinite;
             font-weight: bold;
+            font-size: 20px;
             color: #ff00c8;
-            background: transparent;
             padding: 0.5rem;
-            font-size: 18px;
         }
         @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+            0% { transform: translateX(100%);}
+            100% { transform: translateX(-100%);}
         }
     </style>
 """, unsafe_allow_html=True)
 
-# --- UI: Title ---
+# --- Title and Moving Text ---
 st.markdown('<div class="big-title">🚀 SkillMatch+ | Connect Futuristically</div>', unsafe_allow_html=True)
-
-# --- Moving Advertisement ---
-st.markdown('<div class="moving-text">⚡ More Features Coming Soon! Get Ready for the Future of Connections. ⚡</div>', unsafe_allow_html=True)
-
+st.markdown('<div class="moving-text">⚡ More Features Coming Soon! Get Ready for Futuristic Friendships ⚡</div>', unsafe_allow_html=True)
 st.markdown("---")
 
-# --- UI: User Input ---
+# --- User Input Section ---
 st.subheader("🧑‍🎓 Create Your Profile")
 
 name = st.text_input("Enter Your Name")
 dob = st.date_input("Enter Your Date of Birth (DOB)", min_value=datetime(1950, 1, 1), max_value=datetime.now(), format="YYYY-MM-DD")
 city = st.text_input("Enter Your City")
 
-# Load users from database
 dataset = load_users()
 
 available_interests = sorted(list(set(' '.join(dataset['Profile_Text']).split(' '))))
 selected_interests = st.multiselect("Choose Your Interests", options=available_interests)
 
-# --- Save New User to Database ---
 if st.button("📝 Create My Profile"):
     if not name or not selected_interests:
         st.warning("Please fill all fields and select interests.")
@@ -145,10 +150,13 @@ if st.button("📝 Create My Profile"):
 
 st.markdown("---")
 
-# --- UI: Match Recommendation ---
+# --- Match Recommendation Section ---
 st.subheader("🔎 Find Matching Friends")
-
 top_n = st.slider("Select Number of Recommendations", 5, 50, value=5)
+
+# --- Session state to track clicked "mutuals" ---
+if 'show_mutuals' not in st.session_state:
+    st.session_state.show_mutuals = {}
 
 if st.button("✨ Find My Matches"):
     if not selected_interests:
@@ -156,25 +164,27 @@ if st.button("✨ Find My Matches"):
     else:
         st.success(f"Welcome {name or 'User'}! Finding your top {top_n} matches...")
 
-        # --- Create New Embedding ---
         new_profile_text = ' '.join(selected_interests)
         user_embedding = encoder.encode(new_profile_text)
         user_embedding = np.array([user_embedding]).astype('float32')
 
-        # --- FAISS Search ---
         distances, indices = index.search(user_embedding, top_n + 1)
 
         st.markdown("---")
         st.subheader(f"🎉 Top {top_n} Recommended Friends")
 
-        # --- Show Recommendations ---
-        for idx in indices[0][1:]:
+        # Container for horizontal scroll
+        st.markdown('<div style="overflow-x: auto; white-space: nowrap;">', unsafe_allow_html=True)
+
+        for i, idx in enumerate(indices[0][1:]):
             if idx < len(dataset):
                 matched_user = dataset.iloc[idx]
                 with st.container():
-                    st.markdown('<div class="profile-card">', unsafe_allow_html=True)
+                    is_featured = (i == 0)
+                    card_class = "profile-card featured" if is_featured else "profile-card"
+                    st.markdown(f'<div class="{card_class}">', unsafe_allow_html=True)
                     st.markdown(f"### 👤 {matched_user['Name']} from {matched_user.get('City', 'Unknown')}")
-                    
+
                     dob_str = matched_user.get('DOB', 'Unknown')
                     if pd.notnull(dob_str) and dob_str != 'Unknown':
                         try:
@@ -184,35 +194,38 @@ if st.button("✨ Find My Matches"):
                             age_years = 'Unknown'
                     else:
                         age_years = 'Unknown'
-                    
                     st.write(f"**Age:** {age_years} years")
+
                     st.write(f"**Interests:** 🌟 {matched_user['Profile_Text']}")
                     sim_score = round((1 - distances[0][np.where(indices[0] == idx)[0][0]]) * 100, 2)
                     st.write(f"**Semantic Similarity:** 🔥 {sim_score}%")
-                    
-                    # --- Buttons Section ---
-                    cols = st.columns(2, gap="small")
-                    with cols[0]:
-                        if st.button(f"🤝 Send Friend Request to {matched_user['Name']}", key=f"send_{idx}"):
-                            st.success(f"✅ Friend Request Sent to {matched_user['Name']}!")
-                    with cols[1]:
-                        if st.button(f"🔍 View Mutuals with {matched_user['Name']}", key=f"view_{idx}"):
-                            user_interests = set(selected_interests)
-                            matched_interests = set(matched_user['Profile_Text'].split())
-                            mutual_interests = user_interests.intersection(matched_interests)
-                            different_interests = matched_interests - user_interests
 
-                            st.markdown(f"""
-                                <div style="background: rgba(0, 255, 255, 0.05); padding: 1rem; margin-top: 10px; border-radius: 10px; backdrop-filter: blur(4px);">
-                                    <h5>🤝 Mutual Interests:</h5>
-                                    <p>{', '.join(mutual_interests) if mutual_interests else 'No mutual interests.'}</p>
-                                    <h5>🎯 Other Interests:</h5>
-                                    <p>{', '.join(different_interests) if different_interests else 'None'}</p>
-                                </div>
-                            """, unsafe_allow_html=True)
-                    
+                    # --- Friend Request Button ---
+                    send_request_btn = st.button(f"🤝 Send Friend Request to {matched_user['Name']}", key=f"send_{idx}")
+                    if send_request_btn:
+                        st.success(f"✅ Friend Request Sent to {matched_user['Name']}!")
+
+                    # --- View Mutuals Button ---
+                    view_mutuals_btn = st.button(f"🔎 View Mutuals with {matched_user['Name']}", key=f"mutuals_{idx}")
+                    if view_mutuals_btn:
+                        st.session_state.show_mutuals[idx] = not st.session_state.show_mutuals.get(idx, False)
+
+                    # --- Show Mutuals inside Card ---
+                    if st.session_state.show_mutuals.get(idx, False):
+                        user_interests = set(new_profile_text.lower().split())
+                        matched_interests = set(matched_user['Profile_Text'].lower().split())
+                        mutuals = user_interests.intersection(matched_interests)
+
+                        st.markdown("**🤝 Mutual Interests:**")
+                        if mutuals:
+                            for interest in mutuals:
+                                st.write(f"✅ {interest.capitalize()}")
+                        else:
+                            st.write("❌ No mutual interests found.")
+
                     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Footer ---
+        st.markdown('</div>', unsafe_allow_html=True)
+
 st.markdown("---")
-st.caption("Made with ❤️ | SkillMatch+ Cyberpunk Edition 🚀")
+st.caption("Made with ❤️ | SkillMatch+ Cyberpunk MacOS Edition 🚀")
