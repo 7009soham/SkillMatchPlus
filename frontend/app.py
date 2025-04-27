@@ -101,7 +101,7 @@ st.markdown("---")
 st.subheader("🧑‍🎓 Create Your Profile")
 
 name = st.text_input("Enter Your Name")
-dob = st.date_input("Enter Your Date of Birth (DOB)", format="YYYY-MM-DD")
+dob = st.date_input("Enter Your Date of Birth (DOB)", min_value=datetime(1950, 1, 1), max_value=datetime.now(), format="YYYY-MM-DD")
 city = st.text_input("Enter Your City")
 
 # Load users from database
