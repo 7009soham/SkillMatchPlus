@@ -308,4 +308,4 @@ col1.metric("👥 Total Users", len(dataset))
 col2.metric("🎂 Avg. Age", round(age_distribution.mean(), 1) if not age_distribution.empty else "N/A")
 col3.metric("🌆 Unique Cities", dataset['City'].nunique())
 
-st.caption("Made with ❤️ | SkillMatch+ Cyberpunk MacOS Edition 🚀")
+st.caption("Made with ❤️ | SkillMatch+  🚀")
