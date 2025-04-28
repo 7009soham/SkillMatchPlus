@@ -74,84 +74,82 @@ def insert_user(name, dob, city, profile_text):
 
 # --- Custom CSS ---
 st.markdown("""
-    <style>
-        body { background-color: #0f0f0f; color: #e0e0e0; }
+   <style>
+    body { background-color: #0f0f0f; color: #e0e0e0; }
 
-        .big-title {
-            font-size: 48px;
-            font-weight: 900;
-            background: linear-gradient(90deg, #00ffe5, #ff00c8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
+    .big-title {
+        font-size: 48px;
+        font-weight: 900;
+        background: linear-gradient(90deg, #00ffe5, #ff00c8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
 
-        /* Moving ticker */
-        .moving-text {
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            box-sizing: border-box;
-            animation: marquee 12s linear infinite;
-            font-weight: bold;
-            font-size: 20px;
-            color: #ff00c8;
-            padding: 0.5rem 0;
-            background: #0f0f0f;
-        }
-        @keyframes marquee {
-            from { transform: translateX(100%); }
-            to   { transform: translateX(-100%); }
-        }
+    /* Moving ticker */
+    .moving-text {
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        box-sizing: border-box;
+        animation: marquee 12s linear infinite;
+        font-weight: bold;
+        font-size: 20px;
+        color: #ff00c8;
+        padding: 0.5rem 0;
+        background: #0f0f0f;
+    }
+    @keyframes marquee {
+        from { transform: translateX(100%); }
+        to   { transform: translateX(-100%); }
+    }
 
-        /* Horizontal card scroller */
-        .cards-wrapper {
-            display: flex;
-            gap: 1rem;
-            animation: scroll-cards 30s linear infinite;
-            padding: 1rem 0;
-        }
-        .cards-wrapper:hover {
-            animation-play-state: paused;
-        }
-        @keyframes scroll-cards {
-            from { transform: translateX(100%); }
-            to   { transform: translateX(-100%); }
-        }
+    /* Cards grid (updated here) */
+    .cards-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+        padding: 2rem 1rem;
+    }
 
-        /* Individual profile card */
-        .profile-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0,255,255,0.2);
-            padding: 1.5rem;
-            border-radius: 20px;
-            width: 280px;
-            flex-shrink: 0;
-            box-shadow: 0 0 10px rgba(0,255,255,0.5);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .profile-card:hover {
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 0 20px rgba(255,0,255,0.7);
-        }
-        .profile-card.featured {
-            border-color: #ff00ff;
-            box-shadow: 0 0 30px #ff00ff;
-        }
+    /* Remove old animation */
+    /* .cards-wrapper:hover { animation-play-state: paused; } */
+    /* @keyframes scroll-cards { from { transform: translateX(100%); } to { transform: translateX(-100%); } } */
 
-        .send-btn, .mutuals-btn {
-            margin-top: 0.8rem;
-            width: 100%;
-            background: linear-gradient(90deg, #00ffe5, #ff00c8);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            padding: 0.5rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+    /* Individual profile card */
+    .profile-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0,255,255,0.2);
+        padding: 1.5rem;
+        border-radius: 20px;
+        width: 280px;
+        box-shadow: 0 0 10px rgba(0,255,255,0.5);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .profile-card:hover {
+        transform: translateY(-5px) scale(1.03);
+        box-shadow: 0 0 20px rgba(255,0,255,0.7);
+    }
+    .profile-card.featured {
+        border-color: #ff00ff;
+        box-shadow: 0 0 30px #ff00ff;
+    }
+
+    .send-btn, .mutuals-btn {
+        margin-top: 0.8rem;
+        width: 100%;
+        background: linear-gradient(90deg, #00ffe5, #ff00c8);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
+
 """, unsafe_allow_html=True)
 
 # --- Title and Ticker ---
