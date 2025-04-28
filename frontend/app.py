@@ -73,7 +73,94 @@ def insert_user(name, dob, city, profile_text):
     conn.commit()
 
 # --- Custom CSS ---
-st.markdown("""<style>/* (your existing CSS unchanged) */</style>""", unsafe_allow_html=True)
+st.markdown("""<style>
+/* (your existing CSS unchanged — cyberpunk theme) */
+body {
+    background-color: #0f0f0f;
+    color: #e0e0e0;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+.big-title {
+    font-size: 48px;
+    font-weight: 900;
+    background: linear-gradient(90deg, #00ffe5, #ff00c8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+    margin: 2rem 0 1rem;
+}
+.moving-text {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    box-sizing: border-box;
+    animation: marquee 12s linear infinite;
+    font-weight: bold;
+    font-size: 20px;
+    color: #ff00c8;
+    padding: 0.5rem 0;
+    background: #0f0f0f;
+}
+@keyframes marquee {
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
+}
+.cards-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.profile-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0,255,255,0.2);
+    padding: 1.5rem;
+    border-radius: 20px;
+    width: 260px;
+    flex-shrink: 0;
+    box-shadow: 0 0 10px rgba(0,255,255,0.5);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.profile-card:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 0 20px rgba(255,0,255,0.7);
+}
+.profile-card.featured {
+    border-color: #ff00ff;
+    box-shadow: 0 0 30px #ff00ff;
+}
+.send-btn, .mutuals-btn {
+    margin-top: 0.8rem;
+    width: 100%;
+    background: linear-gradient(90deg, #00ffe5, #ff00c8);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+.mutuals-btn {
+    background: none;
+    border: 1px solid #e0e0e0;
+    color: #e0e0e0;
+    margin-top: 0.5rem;
+}
+@media (max-width: 768px) {
+    .cards-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    .profile-card {
+        width: 90%;
+    }
+}
+</style>""", unsafe_allow_html=True)
 
 # --- Title and Ticker ---
 st.markdown('<div class="big-title">🚀 SkillMatch+ | Connect Futuristically</div>', unsafe_allow_html=True)
@@ -109,7 +196,6 @@ st.markdown("---")
 st.subheader("🔎 Find Matching Friends")
 top_n = st.slider("Select Number of Recommendations", 5, 50, value=5)
 
-# Prepare session for toggles
 if 'show_mutuals' not in st.session_state:
     st.session_state.show_mutuals = {}
 
@@ -154,7 +240,6 @@ if st.button("✨ Find My Matches"):
                   <button class="send-btn">🤝 Send Friend Request</button>
             """, unsafe_allow_html=True)
 
-            # 🔥 Correct mutuals inside card using toggle
             key = f"mutuals_{idx}"
             show_mutual = st.toggle(f"🔎 View Mutual Interests for {u['Name']}", key=key)
 
@@ -180,10 +265,13 @@ st.markdown("---")
 st.markdown("---")
 st.subheader("📊 Community Insights & Trends")
 
+# 🔥 Correct Interests distribution without junk
 st.markdown("### 🌟 Most Popular Interests")
 if len(dataset) > 0:
+    stopwords = {"and", "or", "the", "a", "an", "in", "of", "on", "for", "to", "with", "by"}
     all_words = " ".join(dataset['Profile_Text']).split()
-    interests_series = pd.Series(all_words).value_counts().head(20)
+    filtered_words = [word.lower() for word in all_words if word.lower() not in stopwords]
+    interests_series = pd.Series(filtered_words).value_counts().head(20)
     st.bar_chart(interests_series)
 
 st.markdown("### 🎂 Age Distribution of Users")
