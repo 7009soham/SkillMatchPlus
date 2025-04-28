@@ -285,4 +285,55 @@ if st.button("✨ Find My Matches"):
         st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("---")
+# --- Analytics & Visualizations Section ---
+st.markdown("---")
+st.subheader("📊 Community Insights & Trends")
+
+# Visualization: Interests Distribution
+st.markdown("### 🌟 Most Popular Interests")
+if len(dataset) > 0:
+    all_words = " ".join(dataset['Profile_Text']).split()
+    interests_series = pd.Series(all_words).value_counts().head(20)
+
+    st.bar_chart(interests_series)
+
+# Visualization: Age Distribution
+st.markdown("### 🎂 Age Distribution of Users")
+if len(dataset) > 0:
+    def calculate_age(dob_str):
+        try:
+            dob_dt = datetime.strptime(dob_str, "%Y-%m-%d")
+            return (datetime.now() - dob_dt).days // 365
+        except:
+            return None
+
+    dataset['Age'] = dataset['DOB'].apply(calculate_age)
+    age_distribution = dataset['Age'].dropna()
+
+    st.histogram(age_distribution, bins=20)
+
+# Visualization: Similarity Distribution (Optional if available)
+if 'distances' in locals():
+    st.markdown("### 🔥 Similarity Score Distribution (Your Recommendations)")
+    sim_scores = [(1 - d) * 100 for d in distances[0][1:top_n+1]]
+    sim_df = pd.DataFrame({
+        "Friend Rank": list(range(1, len(sim_scores)+1)),
+        "Similarity (%)": sim_scores
+    })
+
+    st.line_chart(sim_df.set_index("Friend Rank"))
+
+# Visualization: City-wise User Counts
+st.markdown("### 🏙️ Top Cities by User Count")
+if len(dataset) > 0:
+    city_counts = dataset['City'].value_counts().head(10)
+    st.bar_chart(city_counts)
+
+# Summary Card
+st.markdown("### 📈 Quick Summary")
+col1, col2, col3 = st.columns(3)
+col1.metric("👥 Total Users", len(dataset))
+col2.metric("🎂 Avg. Age", round(age_distribution.mean(), 1) if not age_distribution.empty else "N/A")
+col3.metric("🌆 Unique Cities", dataset['City'].nunique())
+
 st.caption("Made with ❤️ | SkillMatch+ Cyberpunk MacOS Edition 🚀")
