@@ -74,8 +74,13 @@ def insert_user(name, dob, city, profile_text):
 
 # --- Custom CSS ---
 st.markdown("""
-   <style>
-    body { background-color: #0f0f0f; color: #e0e0e0; }
+  <style>
+    body {
+        background-color: #0f0f0f;
+        color: #e0e0e0;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
 
     .big-title {
         font-size: 48px;
@@ -84,7 +89,7 @@ st.markdown("""
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
-        margin-bottom: 1rem;
+        margin: 2rem 0 1rem;
     }
 
     /* Moving ticker */
@@ -100,23 +105,23 @@ st.markdown("""
         padding: 0.5rem 0;
         background: #0f0f0f;
     }
+
     @keyframes marquee {
         from { transform: translateX(100%); }
-        to   { transform: translateX(-100%); }
+        to { transform: translateX(-100%); }
     }
 
-    /* Cards grid (updated here) */
+    /* Cards wrapper */
     .cards-wrapper {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        align-items: flex-start;
         gap: 2rem;
-        padding: 2rem 1rem;
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
     }
-
-    /* Remove old animation */
-    /* .cards-wrapper:hover { animation-play-state: paused; } */
-    /* @keyframes scroll-cards { from { transform: translateX(100%); } to { transform: translateX(-100%); } } */
 
     /* Individual profile card */
     .profile-card {
@@ -124,14 +129,17 @@ st.markdown("""
         border: 1px solid rgba(0,255,255,0.2);
         padding: 1.5rem;
         border-radius: 20px;
-        width: 280px;
+        width: 260px;
+        flex-shrink: 0;
         box-shadow: 0 0 10px rgba(0,255,255,0.5);
         transition: transform 0.3s, box-shadow 0.3s;
     }
+
     .profile-card:hover {
         transform: translateY(-5px) scale(1.03);
         box-shadow: 0 0 20px rgba(255,0,255,0.7);
     }
+
     .profile-card.featured {
         border-color: #ff00ff;
         box-shadow: 0 0 30px #ff00ff;
@@ -148,7 +156,26 @@ st.markdown("""
         font-weight: bold;
         cursor: pointer;
     }
+
+    .mutuals-btn {
+        background: none;
+        border: 1px solid #e0e0e0;
+        color: #e0e0e0;
+        margin-top: 0.5rem;
+    }
+
+    /* Responsive for mobile screens */
+    @media (max-width: 768px) {
+        .cards-wrapper {
+            flex-direction: column;
+            align-items: center;
+        }
+        .profile-card {
+            width: 90%;
+        }
+    }
 </style>
+
 
 """, unsafe_allow_html=True)
 
